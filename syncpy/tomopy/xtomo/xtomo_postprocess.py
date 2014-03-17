@@ -6,16 +6,16 @@ absorption tomography data object.
 """
 
 # Import main TomoPy object.
-from tomopy.xtomo import XTomoDataset
+from syncpy.tomopy.xtomo.xtomo_dataset import XTomoDataset
 
 # Import available functons in the package.
-from adaptive_segment import _adaptive_segment
-from remove_background import _remove_background
-from region_segment import _region_segment
-from threshold_segment import _threshold_segment
+from syncpy.tomopy.algorithms.postprocess.adaptive_segment import _adaptive_segment
+from syncpy.tomopy.algorithms.postprocess.remove_background import _remove_background
+from syncpy.tomopy.algorithms.postprocess.region_segment import _region_segment
+from syncpy.tomopy.algorithms.postprocess.threshold_segment import _threshold_segment
 
 # Import multiprocessing module.
-from tomopy.tools.multiprocess import distribute_jobs
+from syncpy.tomopy.tools.multiprocess import distribute_jobs
 
 
 # --------------------------------------------------------------------

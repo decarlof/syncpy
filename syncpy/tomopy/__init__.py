@@ -2,13 +2,10 @@
 """
 TomoPy is a Python toolbox to perform tomographic 
 data processing and image reconstruction tasks at the 
-Advanced Photon Source. It uses the HDF5 file format 
-as the standard means of data exchange.
+Advanced Photon Source.
 """
 
-try:
-    import pkg_resources  # part of setuptools
-    __version__ = pkg_resources.require("tomopy")[0].version
-except:
-    pass
-
+from xtomo.xtomo_dataset import XTomoDataset as xtomodataset
+import xtomo.xtomo_preprocess
+import xtomo.xtomo_recon
+import xtomo.xtomo_postprocess

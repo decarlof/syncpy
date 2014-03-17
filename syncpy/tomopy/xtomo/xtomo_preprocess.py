@@ -8,20 +8,20 @@ absorption tomography data object.
 import numpy as np
 
 # Import main TomoPy object.
-from tomopy.xtomo import XTomoDataset
+from syncpy.tomopy.xtomo.xtomo_dataset import XTomoDataset
 
 # Import available functons in the package.
-from tomopy.algorithms.preprocess.apply_padding import _apply_padding
-from tomopy.algorithms.preprocess.correct_drift import _correct_drift
-from tomopy.algorithms.preprocess.downsample import _downsample2d, _downsample3d
-from tomopy.algorithms.preprocess.median_filter import _median_filter
-from tomopy.algorithms.preprocess.normalize import _normalize
-from tomopy.algorithms.preprocess.phase_retrieval import _phase_retrieval, _paganin_filter
-from tomopy.algorithms.preprocess.stripe_removal import _stripe_removal
-from tomopy.algorithms.preprocess.zinger_removal import _zinger_removal
+from syncpy.tomopy.algorithms.preprocess.apply_padding import _apply_padding
+from syncpy.tomopy.algorithms.preprocess.correct_drift import _correct_drift
+from syncpy.tomopy.algorithms.preprocess.downsample import _downsample2d, _downsample3d
+from syncpy.tomopy.algorithms.preprocess.median_filter import _median_filter
+from syncpy.tomopy.algorithms.preprocess.normalize import _normalize
+from syncpy.tomopy.algorithms.preprocess.phase_retrieval import _phase_retrieval, _paganin_filter
+from syncpy.tomopy.algorithms.preprocess.stripe_removal import _stripe_removal
+from syncpy.tomopy.algorithms.preprocess.zinger_removal import _zinger_removal
 
 # Import multiprocessing module.
-from tomopy.tools.multiprocess import distribute_jobs
+from syncpy.tomopy.tools.multiprocess import distribute_jobs
 
 
 # --------------------------------------------------------------------

@@ -10,18 +10,17 @@ import os
 import shutil
 
 # Import main TomoPy object.
-from tomopy.xtomo import XTomoDataset
+from syncpy.tomopy.xtomo.xtomo_dataset import XTomoDataset
 
 # Import available reconstruction functons in the package.
-from art import _art
-from gridrec import Gridrec
-from mlem import _mlem
+from syncpy.tomopy.algorithms.recon.art import _art
+from syncpy.tomopy.algorithms.recon.gridrec import Gridrec
+from syncpy.tomopy.algorithms.recon.mlem import _mlem
 
 # Import helper functons in the package.
-from diagnose_center import _diagnose_center
-from optimize_center import _optimize_center
-from upsample import _upsample2d, _upsample3d
-from tomopy.preprocess.downsample import _downsample2d
+from syncpy.tomopy.algorithms.recon.diagnose_center import _diagnose_center
+from syncpy.tomopy.algorithms.recon.optimize_center import _optimize_center
+from syncpy.tomopy.algorithms.recon.upsample import _upsample2d, _upsample3d
 
 # --------------------------------------------------------------------
 

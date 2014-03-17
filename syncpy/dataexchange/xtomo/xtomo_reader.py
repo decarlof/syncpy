@@ -3,17 +3,21 @@ import h5py
 from pyhdf import SD
 import numpy as np 
 import PIL.Image as Image
+import netCDF4 as nc
 
-from formats.elettra.tifffile import TiffFile
+#from formats.elettra.tifffile import TiffFile
 import formats.xradia.xradia_xrm as xradia
 import formats.xradia.data_struct as dstruct
 import formats.aps_13bm.data_spe as spe
-import formats.netCDF4 as nc
 from formats.esrf.EdfFile import EdfFile
 
 
-class TomoReader():
-    def hdf5(self, file_name,
+class XTomoReader:
+    def __init__(self, file_name):
+        self.file_name = file_name
+    
+    
+    def hdf5(self,
              array_name=None,
              x_start=0,
              x_end=None,
@@ -57,7 +61,7 @@ class TomoReader():
             Returns the data as a matrix.
         """
         # Read data from file.
-        f = h5py.File(file_name, 'r')
+        f = h5py.File(self.file_name, 'r')
         hdfdata = f[array_name]
 
         num_x, num_y, num_z = hdfdata.shape
@@ -76,7 +80,7 @@ class TomoReader():
         return dataset
         
         
-    def hdf4(self, file_name,
+    def hdf4(self,
              array_name=None,
              x_start=0,
              x_end=None,
@@ -113,7 +117,7 @@ class TomoReader():
             Returns the data as a matrix.
         """
         # Read data from file.
-        f = SD.SD(file_name)
+        f = SD.SD(self.file_name)
         sds = f.select(array_name)
         hdfdata = sds.get()
         sds.endaccess()
@@ -131,7 +135,7 @@ class TomoReader():
         return dataset
         
         
-    def tiff(self, file_name, 
+    def tiff(self, 
              dtype='uint16',
              x_start=0,
              x_end=None,
@@ -164,7 +168,7 @@ class TomoReader():
         out : ndarray
             Output 2-D matrix as numpy array.
         """
-        im = Image.open(file_name)
+        im = Image.open(self.file_name)
         out = np.fromstring(im.tostring(), dtype).reshape(
                                tuple(list(im.size[::-1])))
 
@@ -179,7 +183,7 @@ class TomoReader():
                    y_start:y_end:y_step]
         
         
-    def tiffc(self, file_name, 
+    def tiffc(self, 
               dtype='uint16',
               x_start=0,
               x_end=None,
@@ -211,7 +215,7 @@ class TomoReader():
         out : ndarray
             Output 2-D matrix as numpy array.
         """
-        im = TiffFile(file_name)
+        im = TiffFile(self.file_name)
         out = im[0].asarray()
 
         num_x, num_y = out.shape
@@ -225,7 +229,7 @@ class TomoReader():
                    y_start:y_end:y_step]
         
         
-    def txrm(self, file_name,
+    def txrm(self,
              array_name='Image',
              x_start=0,
              x_end=None,
@@ -265,7 +269,7 @@ class TomoReader():
         array = dstruct
 
         # Read data from file.
-        reader.read_txrm(file_name,array)
+        reader.read_txrm(self.file_name, array)
         num_x, num_y, num_z = np.shape(array.exchange.data)
         if x_end is None:
             x_end = num_x
@@ -281,7 +285,7 @@ class TomoReader():
         return dataset
        
        
-    def xrm(self, file_name,
+    def xrm(self,
             array_name='Image',
             x_start=0,
             x_end=None,
@@ -321,8 +325,7 @@ class TomoReader():
         array = dstruct
 
         # Read data from file.
-                    
-        reader.read_xrm(file_name,array)
+        reader.read_xrm(self.file_name,array)
         num_x, num_y, num_z = np.shape(array.exchange.data)
             
         if x_end is None:
@@ -337,8 +340,9 @@ class TomoReader():
                                       y_start:y_end:y_step,
                                       z_start:z_end:z_step]
         return dataset
+        
          
-    def spe(self, file_name,
+    def spe(self,
             x_start=0,
             x_end=None,
             x_step=1,
@@ -373,7 +377,7 @@ class TomoReader():
         out : array
             Returns the data as a matrix.
         """
-        spe_data = spe.PrincetonSPEFile(file_name)
+        spe_data = spe.PrincetonSPEFile(self.file_name)
         array = spe_data.getData()
         num_z, num_y, num_x = np.shape(array)
 
@@ -391,7 +395,7 @@ class TomoReader():
         return dataset
         
         
-    def esrf(self, file_name,
+    def esrf(self,
              x_start=0,
              x_end=None,
              x_step=1,
@@ -429,7 +433,7 @@ class TomoReader():
         """
  
         # Read data from file.
-        f = EdfFile(file_name, access='r')
+        f = EdfFile(self.file_name, access='r')
         dic = f.GetStaticHeader(0)
         tmpdata = np.empty((f.NumImages, int(dic['Dim_2']), int(dic['Dim_1'])))
 
@@ -450,8 +454,8 @@ class TomoReader():
                           x_start:x_end:x_step]
         return dataset
         
-        
-    def netcdf(self, file_name,
+       
+    def netcdf(self,
                x_start=0,
                x_end=None,
                x_step=1,
@@ -487,7 +491,7 @@ class TomoReader():
         out : array
             Returns the data as a matrix.
         """
-        nc_data = nc.Dataset(file_name, 'r')
+        nc_data = nc.Dataset(self.file_name, 'r')
         array = nc_data.variables['array_data'][:]
             
         num_z, num_y, num_x = np.shape(array)
@@ -503,6 +507,3 @@ class TomoReader():
                         y_start:y_end:y_step,
                         x_start:x_end:x_step]
         return dataset
-        
-    
-
