@@ -8,18 +8,19 @@
 
 """ 
 
-import data_exchange as dx
+import xtomo.xtomo_importer as dx
 
 import re
 
-def main():
 
+def main():
+    
     file_name = '/local/dataraid/databank/ALS_2011/Blakely/blakely_raw/blakelyALS_.tif'
     dark_file_name = '/local/dataraid/databank/ALS_2011/Blakely/blakely_raw/blakelyALSdrk_.tif'
     white_file_name = '/local/dataraid/databank/ALS_2011/Blakely/blakely_raw/blakelyALSbak_.tif'
     log_file = '/local/dataraid/databank/ALS_2011/Blakely/blakely_raw/blakelyALS.sct'
 
-    hdf5_file_name = '/local/dataraid/databank/dataExchange/tmp/blakely_ALS_2011.h5'
+    hdf5_file_name = '/local/dataraid/databank/dataExchange/tmp/blakely_ALS_2011_01.h5'
 
     verbose = True
 
@@ -61,9 +62,9 @@ def main():
     projections_start = 0
     projections_end = int(Angles[0])
 
-    mydata = dx.Convert()
+    mydata = dx.Import()
     # Create minimal hdf5 file
-    mydata.series_of_images(file_name,
+    mydata.series_of_images(file_name = file_name,
                             hdf5_file_name = hdf5_file_name,
                             projections_start = projections_start,
                             projections_end = projections_end,
@@ -78,7 +79,7 @@ def main():
                             projections_zeros = False,
                             white_zeros = False,
                             dark_zeros = False,
-                            log='WARNING'
+                            log='INFO'
                             )
 
 if __name__ == "__main__":

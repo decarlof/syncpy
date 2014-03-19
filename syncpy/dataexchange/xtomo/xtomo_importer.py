@@ -3,7 +3,9 @@ import numpy as np
 import os
 import h5py
 import logging
-from syncpy.dataexchange.xtomo.xtomo_reader import XTomoReader
+
+from xtomo.xtomo_reader import XTomoReader
+from formats.data_exchange.data_exchange import DataExchangeFile, DataExchangeEntry
 
 
 class Import():
@@ -117,29 +119,30 @@ class Import():
                          projections_end=0,
                          projections_step=1,
                          slices_start=0,
-                         slices_end=0,
+                         slices_end=None,
                          slices_step=1,
                          pixels_start=0,
                          pixels_end=0,
                          pixels_step=1,
                          white_file_name=None,
                          white_start=0,
-                         white_end=0,
+                         white_end=None,
                          white_step=1,
                          dark_file_name=None,
                          dark_start=0,
-                         dark_end=0,
+                         dark_end=None,
                          dark_step=1,
                          projections_angle_range=180,
                          projections_zeros=True,
                          projections_digits=4,
-                         white_digits=4,
-                         dark_digits=4,
+                         white_digits=None,
+                         dark_digits=None,
                          white_zeros=True,
                          dark_zeros=True,
                          dtype='uint16',
                          data_type='tiff',
                          sample_name=None,
+                         hdf5_file_name=None,
                          log='INFO'):
         """
         Read a stack of 2-D HDF4, TIFF, spe or netCDF images.
@@ -251,7 +254,7 @@ class Import():
                 dark_file_name.endswith('nc'):
                 data_file_dark = dark_file_name.split('.')[-2]
 
-        elif (data_type is 'tiff'):
+        elif ((data_type is 'tiff') or (data_type is 'compressed_tiff')):
             if file_name.endswith('tif') or \
                 file_name.endswith('tiff'):
                 data_file = file_name.split('.')[-2]
@@ -326,7 +329,7 @@ class Import():
                     tmpdata = f.tiff(x_start=slices_start,
                                      x_end=slices_end,
                                      x_step=slices_step,
-                                     dtype=dtype)
+                                     dtype='uint16')
 
                 if ((data_type is 'tiff') or 
                     (data_type is 'compressed_tiff') or 
@@ -366,33 +369,29 @@ class Import():
 
                 f = XTomoReader(_file_name)
                 if (data_type is 'hdf4'):
-                    tmpdata = f.hdf4(_file_name,
-                                     x_start=slices_start,
+                    tmpdata = f.hdf4(x_start=slices_start,
                                      x_end=slices_end,
                                      x_step=slices_step,
                                      array_name='data')
                                         
                 elif (data_type is 'compressed_tiff'):
-                    tmpdata = f.tiffc(_file_name,
-                                      x_start=slices_start,
+                    tmpdata = f.tiffc(x_start=slices_start,
                                       x_end=slices_end,
                                       x_step=slices_step,
                                       dtype=dtype)
 
                 elif (data_type is 'spe'):
-                    tmpdata = f.spe(_file_name)
+                    tmpdata = f.spe()
 
                 elif (data_type is 'nc'):
-                    tmpdata = f.netcdf(_file_name)
-
+                    tmpdata = f.netcdf()
 
                 elif (data_type is 'tiff'):
-                    tmpdata = f.tiff(_file_name,
-                                     x_start=slices_start,
-                                     x_end=slices_end,
-                                     x_step=slices_step,
-                                     dtype=dtype)
-
+                    tmpdata = f.tiff(x_start = slices_start,
+                                     x_end = slices_end,
+                                     x_step = slices_step,
+                                     dtype = dtype)
+                    
                 if ((data_type is 'tiff') or 
                     (data_type is 'compressed_tiff') or
                     (data_type is 'hdf4')):
@@ -434,28 +433,25 @@ class Import():
 
                 f = XTomoReader(_file_name)
                 if (data_type is 'hdf4'):
-                    tmpdata = f.hdf4(_file_name,
-                                     x_start=slices_start,
+                    tmpdata = f.hdf4(x_start=slices_start,
                                      x_end=slices_end,
                                      x_step=slices_step,
                                      array_name='data')
 
                 elif (data_type is 'compressed_tiff'):
-                    tmpdata = f.tiffc(_file_name,
-                                      x_start=slices_start,
+                    tmpdata = f.tiffc(x_start=slices_start,
                                       x_end=slices_end,
                                       x_step=slices_step,
                                       dtype=dtype)
 
                 elif (data_type is 'spe'):
-                    tmpdata = f.spe(_file_name)
+                    tmpdata = f.spe()
 
                 elif (data_type is 'nc'):
-                    tmpdata = f.netcdf(_file_name)
+                    tmpdata = f.netcdf()
 
                 elif (data_type is 'tiff'):
-                    tmpdata = f.tiff(_file_name,
-                                     x_start=slices_start,
+                    tmpdata = f.tiff(x_start=slices_start,
                                      x_end=slices_end,
                                      x_step=slices_step,
                                      dtype=dtype)
@@ -495,6 +491,47 @@ class Import():
                 
             # Fabricate theta values
             xtomo.theta = (z * float(projections_angle_range) / (len(z) - 1))
+
+        # Create Data Exchange file ----------------------------
+        if (hdf5_file_name != None):
+            if os.path.isfile(hdf5_file_name):
+                xtomo.logger.info("Data Exchange file exists: [%s]. Next time use the Data Exchange reader instead", hdf5_file_name)
+            else:
+                # Create new folder.
+                dirPath = os.path.dirname(hdf5_file_name)
+                if not os.path.exists(dirPath):
+                    os.makedirs(dirPath)
+
+                # Get the file_name in lower case.
+                lFn = hdf5_file_name.lower()
+
+                # Split the string with the delimeter '.'
+                end = lFn.split('.')
+
+                # Write the Data Exchange HDF5 file.
+                # Open DataExchange file
+                f = DataExchangeFile(hdf5_file_name, mode='w') 
+
+                xtomo.logger.info("Creating Data Exchange File [%s]", hdf5_file_name)
+
+                # Create core HDF5 dataset in exchange group for projections_theta_range
+                # deep stack of x,y images /exchange/data
+                xtomo.logger.info("Adding projections to Data Exchange File [%s]", hdf5_file_name)
+                f.add_entry( DataExchangeEntry.data(data={'value': xtomo.data, 'units':'counts', 'description': 'transmission', 'axes':'theta:y:x', 'dataset_opts':  {'compression': 'gzip', 'compression_opts': 4} }))
+                if ((data_type is 'tiff') or (data_type is 'compressed_tiff') or (data_type is 'hdf4')):
+                    f.add_entry( DataExchangeEntry.data(theta={'value': xtomo.theta, 'units':'degrees'}))
+                xtomo.logger.info("Adding dark fields to  Data Exchange File [%s]", hdf5_file_name)
+                f.add_entry( DataExchangeEntry.data(data_dark={'value': xtomo.data_dark, 'units':'counts', 'axes':'theta_dark:y:x', 'dataset_opts':  {'compression': 'gzip', 'compression_opts': 4} }))
+                xtomo.logger.info("Adding white fields to  Data Exchange File [%s]", hdf5_file_name)
+                f.add_entry( DataExchangeEntry.data(data_white={'value': xtomo.data_white, 'units':'counts', 'axes':'theta_white:y:x', 'dataset_opts':  {'compression': 'gzip', 'compression_opts': 4} }))
+                f.add_entry( DataExchangeEntry.data(title={'value': 'tomography_raw_projections'}))
+                if (sample_name == None):
+                    sample_name = end[0]
+                    f.add_entry( DataExchangeEntry.sample( name={'value':sample_name}, description={'value':'Sample name was assigned by the HDF5 converter and based on the HDF5 file name'}))
+                else:
+                    f.add_entry( DataExchangeEntry.sample( name={'value':sample_name}, description={'value':'Sample name was read from the user log file'}))
+                f.close()
+                xtomo.logger.info("DONE!!!!. Created Data Exchange File [%s]", hdf5_file_name)                
 
 
     def nexus(xtomo, file_name,
@@ -591,7 +628,7 @@ class Import():
         Setup and start command line logging.
         """
         # Top-level log setup.
-        xtomo.logger = logging.getLogger("tomopy") 
+        xtomo.logger = logging.getLogger("data exchange") 
         if xtomo._log_level == 'DEBUG':
             xtomo.logger.setLevel(logging.DEBUG)
         elif xtomo._log_level == 'INFO':
