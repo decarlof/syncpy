@@ -1,4 +1,4 @@
 syncpy
 ======
 
-Toolbox for synchrotron imaging.
+Test toolbox.
