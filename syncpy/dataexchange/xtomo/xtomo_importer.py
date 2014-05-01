@@ -5,8 +5,6 @@ import h5py
 import logging
 
 from dataexchange.xtomo.xtomo_reader import XTomoReader
-#from formats.data_exchange.data_exchange import DataExchangeFile, DataExchangeEntry
-
 
 def _dset_read(f_in, dset_name, slice_list):
     """
